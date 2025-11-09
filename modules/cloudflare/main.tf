@@ -1,0 +1,70 @@
+# Registro A principal para o domínio
+resource "cloudflare_record" "root" {
+  zone_id = var.zone_id
+  name    = var.domain
+  content = var.vps_ip
+  type    = "A"
+  ttl     = 3600
+  proxied = false
+}
+
+# Registro A para subdomínio da VPS
+resource "cloudflare_record" "vps" {
+  zone_id = var.zone_id
+  name    = "${var.vps_name}.${var.domain}"
+  content = var.vps_ip
+  type    = "A"
+  ttl     = 3600
+  proxied = false
+}
+
+# Registro A para N8N
+resource "cloudflare_record" "n8n" {
+  zone_id = var.zone_id
+  name    = "n8n.${var.domain}"
+  content = var.vps_ip
+  type    = "A"
+  ttl     = 3600
+  proxied = false
+}
+
+# Registro A para Portainer
+resource "cloudflare_record" "portainer" {
+  zone_id = var.zone_id
+  name    = "portainer.${var.domain}"
+  content = var.vps_ip
+  type    = "A"
+  ttl     = 3600
+  proxied = false
+}
+
+# Registro A para Traefik
+resource "cloudflare_record" "traefik" {
+  zone_id = var.zone_id
+  name    = "traefik.${var.domain}"
+  content = var.vps_ip
+  type    = "A"
+  ttl     = 3600
+  proxied = false
+}
+
+# Registro A para Supabase
+resource "cloudflare_record" "supabase" {
+  zone_id = var.zone_id
+  name    = "supabase.${var.domain}"
+  content = var.vps_ip
+  type    = "A"
+  ttl     = 3600
+  proxied = false
+}
+
+# Registro A para MinIO
+resource "cloudflare_record" "minio" {
+  zone_id = var.zone_id
+  name    = "minio.${var.domain}"
+  content = var.vps_ip
+  type    = "A"
+  ttl     = 3600
+  proxied = false
+}
+

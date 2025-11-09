@@ -1,0 +1,18 @@
+# Python dependencies for Terraform Cloud VPS project
+# These are optional helper scripts dependencies
+
+# Terraform automation (if using Python scripts)
+# boto3>=1.28.0  # AWS SDK (if needed)
+# requests>=2.31.0  # HTTP requests for API calls
+
+# Development tools
+black>=23.0.0  # Code formatter
+flake8>=6.0.0  # Linter
+pytest>=7.4.0  # Testing framework
+
+# Terraform utilities (if using Python wrappers)
+# python-terraform>=0.10.0  # Python Terraform wrapper
+
+# Note: This project primarily uses Terraform (HCL), not Python
+# Requirements are for optional helper scripts or development tools
+

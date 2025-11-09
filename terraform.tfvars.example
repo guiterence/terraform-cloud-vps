@@ -1,0 +1,47 @@
+# Exemplo de arquivo de variáveis
+# Copie este arquivo para terraform.tfvars e preencha com suas credenciais
+
+# Contabo Credentials
+contabo_client_id     = "seu_client_id_aqui"
+contabo_client_secret = "seu_client_secret_aqui"
+contabo_user          = "seu_usuario_aqui"
+contabo_pass          = "sua_senha_aqui"
+
+# Cloudflare Credentials
+cloudflare_api_token = "seu_api_token_aqui"
+cloudflare_zone_id   = "seu_zone_id_aqui"
+domain_name          = "exemplo.com"
+
+# VPS Configuration
+vps_name         = "minha-vps"
+vps_region       = "EU"
+vps_image_id     = "Ubuntu 22.04"
+vps_instance_type = "VPS S"
+vps_ssh_key      = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC... sua_chave_ssh_publica"
+vps_root_password = "senha_segura_aqui"
+
+# Tool Configuration
+enable_n8n       = true
+enable_portainer = true
+enable_traefik   = true
+enable_supabase  = true
+enable_postgres  = true
+enable_minio     = true
+
+# Traefik Configuration
+traefik_email = "seu_email@exemplo.com"
+
+# Supabase Configuration
+supabase_db_password = "senha_do_banco_supabase"
+
+# MinIO Configuration
+minio_root_user     = "minioadmin"
+minio_root_password = "senha_minio_segura"
+
+# SSH Configuration
+ssh_private_key_path = "~/.ssh/id_rsa"
+
+# VPS Existente (use se já tiver uma VPS criada)
+use_existing_vps = false
+existing_vps_ip  = ""  # Exemplo: "123.45.67.89"
+
