@@ -56,6 +56,12 @@ variable "enable_minio" {
   default     = true
 }
 
+variable "enable_rabbitmq" {
+  description = "Habilitar RabbitMQ"
+  type        = bool
+  default     = true
+}
+
 variable "traefik_email" {
   description = "Email para certificados Let's Encrypt"
   type        = string
@@ -86,5 +92,18 @@ variable "ssh_private_key_path" {
   description = "Caminho para a chave SSH privada"
   type        = string
   default     = "~/.ssh/id_rsa"
+}
+
+variable "rabbitmq_user" {
+  description = "Usuário do RabbitMQ"
+  type        = string
+  default     = "admin"
+}
+
+variable "rabbitmq_password" {
+  description = "Senha do RabbitMQ"
+  type        = string
+  sensitive   = true
+  default     = ""
 }
 

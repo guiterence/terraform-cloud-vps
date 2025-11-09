@@ -34,8 +34,8 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - supabase_db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # Não expor porta 5432 para evitar conflito com PostgreSQL existente
+    # Acesso via rede Docker apenas
     networks:
       - supabase-network
 

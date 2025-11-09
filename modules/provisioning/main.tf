@@ -17,9 +17,11 @@ resource "null_resource" "initial_setup" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "remote-exec" {
@@ -42,9 +44,11 @@ resource "null_resource" "install_docker" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "remote-exec" {
@@ -66,9 +70,11 @@ resource "null_resource" "install_docker_compose" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "remote-exec" {
@@ -87,9 +93,11 @@ resource "null_resource" "create_traefik_network" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "remote-exec" {
@@ -107,15 +115,17 @@ resource "null_resource" "create_directories" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "remote-exec" {
     inline = [
-      "mkdir -p /opt/docker/{traefik,n8n,portainer,supabase,postgres,minio}",
-      "mkdir -p /opt/docker/traefik/{acme,config}",
+      "mkdir -p /opt/docker/traefik /opt/docker/n8n /opt/docker/portainer /opt/docker/supabase /opt/docker/postgres /opt/docker/minio /opt/docker/rabbitmq",
+      "mkdir -p /opt/docker/traefik/acme /opt/docker/traefik/config",
       "mkdir -p /opt/docker/minio/data",
       "mkdir -p /opt/docker/postgres/data"
     ]
@@ -132,9 +142,11 @@ resource "null_resource" "provision_traefik" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "file" {
@@ -143,6 +155,14 @@ resource "null_resource" "provision_traefik" {
       email       = var.traefik_email
     })
     destination = "/opt/docker/traefik/docker-compose.yml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "rm -rf /opt/docker/traefik/config/traefik.yml",  # Remove se for diretório
+      "mkdir -p /opt/docker/traefik/config",
+      "mkdir -p /opt/docker/traefik/acme"
+    ]
   }
 
   provisioner "file" {
@@ -156,6 +176,7 @@ resource "null_resource" "provision_traefik" {
   provisioner "remote-exec" {
     inline = [
       "cd /opt/docker/traefik",
+      "chmod 600 /opt/docker/traefik/acme/acme.json 2>/dev/null || true",
       "docker-compose up -d"
     ]
   }
@@ -171,9 +192,11 @@ resource "null_resource" "provision_portainer" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "file" {
@@ -201,9 +224,11 @@ resource "null_resource" "provision_postgres" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "file" {
@@ -231,9 +256,11 @@ resource "null_resource" "provision_minio" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "file" {
@@ -263,9 +290,11 @@ resource "null_resource" "provision_n8n" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "file" {
@@ -293,9 +322,11 @@ resource "null_resource" "provision_supabase" {
     type        = "ssh"
     host        = local.ssh_host
     user        = local.ssh_user
-    private_key = file(var.ssh_private_key_path)
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
     timeout     = "10m"
-    agent       = false
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
   }
 
   provisioner "file" {
@@ -309,6 +340,40 @@ resource "null_resource" "provision_supabase" {
   provisioner "remote-exec" {
     inline = [
       "cd /opt/docker/supabase",
+      "docker-compose up -d"
+    ]
+  }
+}
+
+# Provisionar RabbitMQ
+resource "null_resource" "provision_rabbitmq" {
+  count = var.enable_rabbitmq ? 1 : 0
+
+  depends_on = [null_resource.create_directories, null_resource.provision_traefik]
+
+  connection {
+    type        = "ssh"
+    host        = local.ssh_host
+    user        = local.ssh_user
+    # Usar apenas ssh-agent (não tentar ler chave com passphrase diretamente)
+    # private_key só será usado se ssh-agent não estiver disponível
+    timeout     = "10m"
+    agent       = true  # Usar ssh-agent (resolve passphrase)
+    host_key    = ""    # Não verificar host key (primeira conexão)
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/templates/rabbitmq.yml.tpl", {
+      domain   = var.domain_name
+      user     = var.rabbitmq_user
+      password = var.rabbitmq_password != "" ? nonsensitive(var.rabbitmq_password) : "admin"
+    })
+    destination = "/opt/docker/rabbitmq/docker-compose.yml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "cd /opt/docker/rabbitmq",
       "docker-compose up -d"
     ]
   }

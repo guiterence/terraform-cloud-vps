@@ -41,6 +41,12 @@ variable "domain_name" {
   default     = "example.com"
 }
 
+variable "skip_cloudflare_dns" {
+  description = "Pular configuração de DNS no Cloudflare (útil se tiver problemas de autenticação)"
+  type        = bool
+  default     = false
+}
+
 # Variáveis da VPS
 variable "vps_name" {
   description = "Nome da VPS"
@@ -134,6 +140,12 @@ variable "enable_minio" {
   default     = true
 }
 
+variable "enable_rabbitmq" {
+  description = "Habilitar RabbitMQ"
+  type        = bool
+  default     = true
+}
+
 # Variáveis de configuração do Traefik
 variable "traefik_email" {
   description = "Email para certificados Let's Encrypt"
@@ -158,6 +170,20 @@ variable "minio_root_user" {
 
 variable "minio_root_password" {
   description = "Senha root do MinIO"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+# Variáveis de configuração do RabbitMQ
+variable "rabbitmq_user" {
+  description = "Usuário do RabbitMQ"
+  type        = string
+  default     = "admin"
+}
+
+variable "rabbitmq_password" {
+  description = "Senha do RabbitMQ"
   type        = string
   sensitive   = true
   default     = ""

@@ -8,6 +8,7 @@ output "dns_records" {
     traefik   = cloudflare_record.traefik.hostname
     supabase  = cloudflare_record.supabase.hostname
     minio     = cloudflare_record.minio.hostname
+    rabbitmq  = cloudflare_record.rabbitmq.hostname
   }
 }
 

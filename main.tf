@@ -16,8 +16,9 @@ module "contabo_vps" {
   vps_root_password = var.vps_root_password
 }
 
-# Módulo para configurar DNS no Cloudflare
+# Módulo para configurar DNS no Cloudflare (opcional)
 module "cloudflare_dns" {
+  count  = var.skip_cloudflare_dns ? 0 : 1
   source = "./modules/cloudflare"
 
   zone_id    = var.cloudflare_zone_id
@@ -31,7 +32,7 @@ module "provisioning" {
   source = "./modules/provisioning"
 
   depends_on = [
-    module.cloudflare_dns
+    # DNS é opcional, então não é dependência obrigatória
   ]
 
   vps_ip              = local.vps_ip
@@ -47,11 +48,14 @@ module "provisioning" {
   enable_supabase     = var.enable_supabase
   enable_postgres      = var.enable_postgres
   enable_minio         = var.enable_minio
+  enable_rabbitmq      = var.enable_rabbitmq
 
   # Configurações específicas
   traefik_email       = var.traefik_email
   supabase_db_password = var.supabase_db_password
   minio_root_user     = var.minio_root_user
   minio_root_password = var.minio_root_password
+  rabbitmq_user       = var.rabbitmq_user
+  rabbitmq_password    = var.rabbitmq_password
 }
 

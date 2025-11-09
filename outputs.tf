@@ -15,7 +15,9 @@ output "vps_status" {
 
 output "dns_records" {
   description = "Registros DNS criados no Cloudflare"
-  value       = module.cloudflare_dns.dns_records
+  value       = var.skip_cloudflare_dns ? {
+    message = "DNS pulado (skip_cloudflare_dns = true)"
+  } : module.cloudflare_dns[0].dns_records
 }
 
 output "n8n_url" {
@@ -41,5 +43,10 @@ output "supabase_url" {
 output "minio_url" {
   description = "URL do MinIO"
   value       = var.enable_minio ? "https://minio.${var.domain_name}" : null
+}
+
+output "rabbitmq_url" {
+  description = "URL do RabbitMQ Management"
+  value       = var.enable_rabbitmq ? "https://rabbitmq.${var.domain_name}" : null
 }
 
