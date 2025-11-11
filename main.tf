@@ -52,6 +52,8 @@ module "provisioning" {
 
   # Configurações específicas
   traefik_email        = var.traefik_email
+  traefik_basic_auth_user     = var.traefik_basic_auth_user
+  traefik_basic_auth_password = var.traefik_basic_auth_password
   supabase_db_password = var.supabase_db_password
   supabase_service_key  = var.supabase_service_key
   postgres_password     = var.postgres_password

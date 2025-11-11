@@ -23,14 +23,11 @@ services:
       - STORAGE_S3_ACCESS_KEY=${minio_access_key}
       - STORAGE_S3_SECRET_KEY=${minio_secret_key}
       - STORAGE_S3_FORCE_PATH_STYLE=true
+      - HOST=0.0.0.0
     ports:
       - "3000:3000"
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      disable: true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.supabase.rule=Host(`supabase.${domain}`)"
@@ -38,6 +35,7 @@ services:
       - "traefik.http.routers.supabase.tls.certresolver=letsencrypt"
       - "traefik.http.routers.supabase.service=supabase"
       - "traefik.http.services.supabase.loadbalancer.server.port=3000"
+      - "traefik.docker.network=supabase_supabase-network"
     networks:
       - traefik-network
       - supabase-network

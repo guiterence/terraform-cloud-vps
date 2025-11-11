@@ -30,6 +30,8 @@ enable_minio     = true
 
 # Traefik Configuration
 traefik_email = "seu_email@exemplo.com"
+traefik_basic_auth_user = "admin@exemplo.com"
+traefik_basic_auth_password = "senha_segura_para_dashboard"
 
 # Supabase Configuration
 supabase_db_password = "senha_do_banco_supabase"

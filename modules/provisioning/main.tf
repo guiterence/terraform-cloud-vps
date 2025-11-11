@@ -3,6 +3,7 @@ locals {
   ssh_user         = "root"
   ssh_host         = var.vps_ip
   minio_root_password = var.minio_root_password != "" ? nonsensitive(var.minio_root_password) : "minioadmin"
+  traefik_basic_auth_hash = var.traefik_basic_auth_password != "" ? bcrypt(var.traefik_basic_auth_password) : ""
 }
 
 # Aguardar a VPS estar acessível via SSH (aguardar alguns segundos após criação)
@@ -139,6 +140,13 @@ resource "null_resource" "provision_traefik" {
 
   depends_on = [null_resource.create_directories]
 
+  triggers = {
+    compose_hash      = filesha1("${path.module}/templates/traefik.yml.tpl")
+    config_hash       = filesha1("${path.module}/templates/traefik-config.yml.tpl")
+    basic_auth_user   = var.traefik_basic_auth_user
+    basic_auth_hash   = local.traefik_basic_auth_hash
+  }
+
   connection {
     type        = "ssh"
     host        = local.ssh_host
@@ -154,6 +162,8 @@ resource "null_resource" "provision_traefik" {
     content = templatefile("${path.module}/templates/traefik.yml.tpl", {
       domain      = var.domain_name
       email       = var.traefik_email
+      basic_auth_user = var.traefik_basic_auth_user
+      basic_auth_hash = local.traefik_basic_auth_hash
     })
     destination = "/opt/docker/traefik/docker-compose.yml"
   }
@@ -178,7 +188,8 @@ resource "null_resource" "provision_traefik" {
     inline = [
       "cd /opt/docker/traefik",
       "chmod 600 /opt/docker/traefik/acme/acme.json 2>/dev/null || true",
-      "docker-compose up -d"
+      "docker-compose up -d",
+      "docker network inspect supabase_supabase-network >/dev/null 2>&1 && docker network connect supabase_supabase-network traefik 2>/dev/null || true"
     ]
   }
 }
@@ -368,7 +379,8 @@ resource "null_resource" "provision_supabase" {
       "docker-compose up -d",
       "sleep 5",
       "docker exec supabase-db chown -R postgres:postgres /var/lib/postgresql/data 2>/dev/null || true",
-      "docker-compose restart supabase-db"
+      "docker-compose restart supabase-db",
+      "docker network inspect supabase_supabase-network >/dev/null 2>&1 && docker network connect supabase_supabase-network traefik 2>/dev/null || true"
     ]
   }
 }

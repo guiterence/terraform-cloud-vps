@@ -19,8 +19,10 @@ services:
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
       - "traefik.http.routers.traefik.service=api@internal"
+%{ if basic_auth_user != "" && basic_auth_hash != "" }
       - "traefik.http.routers.traefik.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$hashed_password_here"
+      - "traefik.http.middlewares.auth.basicauth.users=${basic_auth_user}:${basic_auth_hash}"
+%{ endif }
     networks:
       - traefik-network
 

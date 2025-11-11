@@ -153,6 +153,19 @@ variable "traefik_email" {
   default     = ""
 }
 
+variable "traefik_basic_auth_user" {
+  description = "Usuário (email) para autenticação básica do dashboard Traefik"
+  type        = string
+  default     = ""
+}
+
+variable "traefik_basic_auth_password" {
+  description = "Senha para autenticação básica do dashboard Traefik"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 # Variáveis de configuração do Supabase
 variable "supabase_db_password" {
   description = "Senha do banco de dados Supabase"
