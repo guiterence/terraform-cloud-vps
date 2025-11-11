@@ -8,7 +8,7 @@ Projeto Terraform para automatizar a criação e configuração de uma infraestr
   - **Traefik**: Reverse proxy e load balancer com SSL automático
   - **Portainer**: Interface web para gerenciamento de containers Docker
   - **N8N**: Plataforma de automação de workflows
-  - **Supabase**: Backend-as-a-Service (BaaS)
+- **Supabase**: Backend-as-a-Service (BaaS) com Supabase Studio, Postgres, Postgres Meta e Storage integrados ao MinIO
   - **PostgreSQL**: Banco de dados relacional
   - **MinIO**: Armazenamento de objetos compatível com S3
 
@@ -94,15 +94,25 @@ enable_postgres  = true
 enable_minio     = true
 
 # Traefik Configuration
-traefik_email = "seu_email@exemplo.com"
+traefik_email               = "seu_email@exemplo.com"
+traefik_basic_auth_user     = "admin@exemplo.com"
+traefik_basic_auth_password = "senha_segura"
 
 # Supabase Configuration
 supabase_db_password = "senha_do_banco"
+supabase_service_key = "chave_de_servico_supabase"
+postgres_password    = "senha_postgres_principal"
 
 # MinIO Configuration
-minio_root_user     = "minioadmin"
-minio_root_password = "senha_minio"
+minio_root_user                   = "minioadmin"
+minio_root_password               = "senha_minio"
+minio_bucket_name                 = "meu-bucket"
+minio_service_account_name        = "supabase"
+minio_service_account_access_key  = "minha_access_key"
+minio_service_account_secret_key  = "minha_secret_key"
 ```
+
+> 💡 **Dica:** mantenha todas as senhas e chaves em um cofre seguro (1Password, Bitwarden, etc.).
 
 ### 3. Obter credenciais
 
@@ -280,6 +290,23 @@ terraform apply -target=module.provisioning
 - Certifique-se de que o domínio está apontando para o Cloudflare antes de executar
 - As senhas padrão devem ser alteradas após o primeiro acesso
 - O Traefik precisa de um email válido para gerar certificados SSL
+- O Traefik já pode ser protegido por usuário/senha via `traefik_basic_auth_user` e `traefik_basic_auth_password`
+  definidos no `terraform.tfvars`
+- O Supabase cria automaticamente as roles necessárias no Postgres através do arquivo `init.sql`
+- O Supabase Meta (`supabase-meta`) é provisionado para que o Supabase Studio funcione corretamente
+
+## 🔗 Integração MinIO + Supabase
+
+1. **Gerar credenciais no MinIO**  
+   - Acesse `https://minio-console.seudominio.com` com o usuário root (`minio_root_user`).  
+   - Crie (ou confirme) o bucket padrão definido em `minio_bucket_name`.  
+   - Gere manualmente uma *Service Account* com permissões completas para o Supabase.  
+   - Copie o `Access Key` e o `Secret Key`.
+2. **Configurar o Terraform**  
+   - Preencha `minio_service_account_access_key` e `minio_service_account_secret_key` no `terraform.tfvars`.  
+   - Execute `terraform apply` para que o Supabase consuma essas credenciais automaticamente.
+3. **Reaplicar quando trocar as chaves**  
+   - Sempre que gerar novas chaves no MinIO, atualize o `terraform.tfvars` e rode `terraform apply`.
 
 ## 🤝 Contribuindo
 
