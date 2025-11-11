@@ -161,6 +161,21 @@ variable "supabase_db_password" {
   default     = ""
 }
 
+variable "supabase_service_key" {
+  description = "Service key do Supabase (chave de API para operações privilegiadas)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+# Variáveis de configuração do PostgreSQL
+variable "postgres_password" {
+  description = "Senha do usuário do PostgreSQL principal"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 # Variáveis de configuração do MinIO
 variable "minio_root_user" {
   description = "Usuário root do MinIO"
@@ -175,6 +190,32 @@ variable "minio_root_password" {
   default     = ""
 }
 
+variable "minio_bucket_name" {
+  description = "Nome do bucket padrão a ser criado automaticamente no MinIO"
+  type        = string
+  default     = "terraform-cloud-vps"
+}
+
+variable "minio_service_account_name" {
+  description = "Nome descritivo para a service account padrão do MinIO (usada pelo Supabase)"
+  type        = string
+  default     = "supabase"
+}
+
+variable "minio_service_account_access_key" {
+  description = "Access key da service account padrão do MinIO (usada pelo Supabase)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "minio_service_account_secret_key" {
+  description = "Secret key da service account padrão do MinIO (usada pelo Supabase)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 # Variáveis de configuração do RabbitMQ
 variable "rabbitmq_user" {
   description = "Usuário do RabbitMQ"
@@ -184,6 +225,14 @@ variable "rabbitmq_user" {
 
 variable "rabbitmq_password" {
   description = "Senha do RabbitMQ"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+# Variáveis de configuração do N8N
+variable "n8n_anthropic_api_key" {
+  description = "API Key da Anthropic (Claude) para usar MCP no N8N"
   type        = string
   sensitive   = true
   default     = ""

@@ -1,7 +1,8 @@
 # Configurar conexão SSH
 locals {
-  ssh_user = "root"
-  ssh_host = var.vps_ip
+  ssh_user         = "root"
+  ssh_host         = var.vps_ip
+  minio_root_password = var.minio_root_password != "" ? nonsensitive(var.minio_root_password) : "minioadmin"
 }
 
 # Aguardar a VPS estar acessível via SSH (aguardar alguns segundos após criação)
@@ -233,7 +234,7 @@ resource "null_resource" "provision_postgres" {
 
   provisioner "file" {
     content = templatefile("${path.module}/templates/postgres.yml.tpl", {
-      password = var.supabase_db_password != "" ? nonsensitive(var.supabase_db_password) : "postgres"
+      password = var.postgres_password != "" ? nonsensitive(var.postgres_password) : "postgres"
     })
     destination = "/opt/docker/postgres/docker-compose.yml"
   }
@@ -252,6 +253,11 @@ resource "null_resource" "provision_minio" {
 
   depends_on = [null_resource.create_directories]
 
+  triggers = {
+    compose_hash = filesha1("${path.module}/templates/minio.yml.tpl")
+    bucket       = var.minio_bucket_name
+  }
+
   connection {
     type        = "ssh"
     host        = local.ssh_host
@@ -267,7 +273,7 @@ resource "null_resource" "provision_minio" {
     content = templatefile("${path.module}/templates/minio.yml.tpl", {
       domain   = var.domain_name
       user     = var.minio_root_user
-      password = var.minio_root_password != "" ? nonsensitive(var.minio_root_password) : "minioadmin"
+      password = local.minio_root_password
     })
     destination = "/opt/docker/minio/docker-compose.yml"
   }
@@ -275,7 +281,12 @@ resource "null_resource" "provision_minio" {
   provisioner "remote-exec" {
     inline = [
       "cd /opt/docker/minio",
-      "docker-compose up -d"
+      "docker-compose up -d",
+      "sleep 10",
+      "docker exec minio mc alias rm local >/dev/null 2>&1 || true",
+      "docker exec minio mc alias set local http://127.0.0.1:9000 '${var.minio_root_user}' '${local.minio_root_password}'",
+      "docker exec minio mc mb --ignore-existing local/${var.minio_bucket_name}",
+      "docker exec minio mc anonymous set private local/${var.minio_bucket_name}"
     ]
   }
 }
@@ -299,7 +310,8 @@ resource "null_resource" "provision_n8n" {
 
   provisioner "file" {
     content = templatefile("${path.module}/templates/n8n.yml.tpl", {
-      domain = var.domain_name
+      domain           = var.domain_name
+      anthropic_api_key = var.n8n_anthropic_api_key != "" ? nonsensitive(var.n8n_anthropic_api_key) : ""
     })
     destination = "/opt/docker/n8n/docker-compose.yml"
   }
@@ -318,6 +330,13 @@ resource "null_resource" "provision_supabase" {
 
   depends_on = [null_resource.provision_traefik, null_resource.provision_postgres]
 
+  triggers = {
+    compose_hash = filesha1("${path.module}/templates/supabase.yml.tpl")
+    minio_bucket = var.minio_bucket_name
+    minio_access = sha256(nonsensitive(var.minio_service_account_access_key))
+    minio_secret = sha256(nonsensitive(var.minio_service_account_secret_key))
+  }
+
   connection {
     type        = "ssh"
     host        = local.ssh_host
@@ -331,8 +350,12 @@ resource "null_resource" "provision_supabase" {
 
   provisioner "file" {
     content = templatefile("${path.module}/templates/supabase.yml.tpl", {
-      domain   = var.domain_name
-      password = var.supabase_db_password != "" ? nonsensitive(var.supabase_db_password) : "postgres"
+      domain           = var.domain_name
+      password         = var.supabase_db_password != "" ? nonsensitive(var.supabase_db_password) : "postgres"
+      service_key      = var.supabase_service_key != "" ? nonsensitive(var.supabase_service_key) : "n78oYSAI5XiVxH5Ua4CYf4W+q1cS/QuSsbH9moX2onY="
+      minio_bucket     = var.minio_bucket_name
+      minio_access_key = var.minio_service_account_access_key != "" ? nonsensitive(var.minio_service_account_access_key) : ""
+      minio_secret_key = var.minio_service_account_secret_key != "" ? nonsensitive(var.minio_service_account_secret_key) : ""
     })
     destination = "/opt/docker/supabase/docker-compose.yml"
   }
@@ -340,7 +363,12 @@ resource "null_resource" "provision_supabase" {
   provisioner "remote-exec" {
     inline = [
       "cd /opt/docker/supabase",
-      "docker-compose up -d"
+      "docker-compose down 2>/dev/null || true",
+      "docker volume rm supabase_supabase_db_data 2>/dev/null || true",
+      "docker-compose up -d",
+      "sleep 5",
+      "docker exec supabase-db chown -R postgres:postgres /var/lib/postgresql/data 2>/dev/null || true",
+      "docker-compose restart supabase-db"
     ]
   }
 }

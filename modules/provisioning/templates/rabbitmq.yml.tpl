@@ -19,11 +19,8 @@ services:
       - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.${domain}`)"
       - "traefik.http.routers.rabbitmq.entrypoints=websecure"
       - "traefik.http.routers.rabbitmq.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.rabbitmq.service=rabbitmq"
       - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
-      - "traefik.http.routers.rabbitmq-api.rule=Host(`rabbitmq-api.${domain}`)"
-      - "traefik.http.routers.rabbitmq-api.entrypoints=websecure"
-      - "traefik.http.routers.rabbitmq-api.tls.certresolver=letsencrypt"
-      - "traefik.http.services.rabbitmq-api.loadbalancer.server.port=15672"
     networks:
       - traefik-network
       - rabbitmq-network

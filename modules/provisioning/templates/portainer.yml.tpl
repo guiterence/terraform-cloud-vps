@@ -8,6 +8,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    environment:
+      # Desabilita o timeout de segurança (0 = desabilitado)
+      - PORTAINER_ADMIN_TIMEOUT=0
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`portainer.${domain}`)"

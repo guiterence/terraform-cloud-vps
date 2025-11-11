@@ -51,11 +51,18 @@ module "provisioning" {
   enable_rabbitmq      = var.enable_rabbitmq
 
   # Configurações específicas
-  traefik_email       = var.traefik_email
+  traefik_email        = var.traefik_email
   supabase_db_password = var.supabase_db_password
-  minio_root_user     = var.minio_root_user
-  minio_root_password = var.minio_root_password
-  rabbitmq_user       = var.rabbitmq_user
-  rabbitmq_password    = var.rabbitmq_password
+  supabase_service_key  = var.supabase_service_key
+  postgres_password     = var.postgres_password
+  minio_root_user       = var.minio_root_user
+  minio_root_password   = var.minio_root_password
+  minio_bucket_name     = var.minio_bucket_name
+  minio_service_account_name       = var.minio_service_account_name
+  minio_service_account_access_key = var.minio_service_account_access_key
+  minio_service_account_secret_key = var.minio_service_account_secret_key
+  rabbitmq_user         = var.rabbitmq_user
+  rabbitmq_password     = var.rabbitmq_password
+  n8n_anthropic_api_key  = var.n8n_anthropic_api_key
 }
 

@@ -21,6 +21,9 @@ services:
       - DB_POSTGRESDB_DATABASE=n8n
       - DB_POSTGRESDB_USER=n8n
       - DB_POSTGRESDB_PASSWORD=n8n
+%{ if anthropic_api_key != "" }
+      - ANTHROPIC_API_KEY=${anthropic_api_key}
+%{ endif }
     volumes:
       - n8n_data:/home/node/.n8n
     depends_on:

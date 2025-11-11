@@ -34,9 +34,16 @@ traefik_email = "seu_email@exemplo.com"
 # Supabase Configuration
 supabase_db_password = "senha_do_banco_supabase"
 
+# PostgreSQL Configuration
+postgres_password = "senha_postgres_segura"
+
 # MinIO Configuration
 minio_root_user     = "minioadmin"
 minio_root_password = "senha_minio_segura"
+minio_bucket_name   = "terraform-cloud-vps"
+minio_service_account_name        = "supabase"
+minio_service_account_access_key  = "sua_access_key_supabase"
+minio_service_account_secret_key  = "sua_secret_key_supabase"
 
 # SSH Configuration
 ssh_private_key_path = "~/.ssh/id_rsa"
@@ -44,4 +51,8 @@ ssh_private_key_path = "~/.ssh/id_rsa"
 # VPS Existente (use se já tiver uma VPS criada)
 use_existing_vps = false
 existing_vps_ip  = ""  # Exemplo: "123.45.67.89"
+
+# N8N Configuration (MCP - Model Context Protocol)
+# Para usar Claude (Anthropic) no N8N, adicione sua API key:
+n8n_anthropic_api_key = ""  # Exemplo: "sk-ant-api03-..."
 

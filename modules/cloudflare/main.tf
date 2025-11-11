@@ -86,3 +86,14 @@ resource "cloudflare_record" "rabbitmq" {
   allow_overwrite = true
 }
 
+# Registro A para MinIO Console
+resource "cloudflare_record" "minio_console" {
+  zone_id = var.zone_id
+  name    = "minio-console.${var.domain}"
+  content = var.vps_ip
+  type    = "A"
+  ttl     = 3600
+  proxied        = false
+  allow_overwrite = true
+}
+
