@@ -346,6 +346,7 @@ resource "null_resource" "provision_supabase" {
     minio_bucket = var.minio_bucket_name
     minio_access = sha256(nonsensitive(var.minio_service_account_access_key))
     minio_secret = sha256(nonsensitive(var.minio_service_account_secret_key))
+    init_hash   = filesha1("${path.module}/templates/supabase-init.sql.tpl")
   }
 
   connection {
@@ -369,6 +370,13 @@ resource "null_resource" "provision_supabase" {
       minio_secret_key = var.minio_service_account_secret_key != "" ? nonsensitive(var.minio_service_account_secret_key) : ""
     })
     destination = "/opt/docker/supabase/docker-compose.yml"
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/templates/supabase-init.sql.tpl", {
+      password = replace(var.supabase_db_password != "" ? nonsensitive(var.supabase_db_password) : "postgres", "'", "''")
+    })
+    destination = "/opt/docker/supabase/init.sql"
   }
 
   provisioner "remote-exec" {

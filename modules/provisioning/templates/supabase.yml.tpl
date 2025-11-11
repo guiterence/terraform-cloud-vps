@@ -10,6 +10,7 @@ services:
       - DEFAULT_ORGANIZATION_NAME=Default Organization
       - DEFAULT_PROJECT_NAME=Default Project
       - SUPABASE_SERVICE_KEY=${service_key}
+      - STUDIO_PG_META_URL=http://supabase-meta:8080
       - POSTGRES_PASSWORD=${password}
       - POSTGRES_HOST=supabase-db
       - POSTGRES_PORT=5432
@@ -23,7 +24,7 @@ services:
       - STORAGE_S3_ACCESS_KEY=${minio_access_key}
       - STORAGE_S3_SECRET_KEY=${minio_secret_key}
       - STORAGE_S3_FORCE_PATH_STYLE=true
-      - HOST=0.0.0.0
+      - HOSTNAME=0.0.0.0
     ports:
       - "3000:3000"
     healthcheck:
@@ -40,7 +41,22 @@ services:
       - traefik-network
       - supabase-network
     depends_on:
+      - supabase-meta
       - supabase-db
+
+  supabase-meta:
+    image: supabase/postgres-meta:v0.93.1
+    container_name: supabase-meta
+    restart: unless-stopped
+    environment:
+      - PG_META_DB_HOST=supabase-db
+      - PG_META_DB_PORT=5432
+      - PG_META_DB_NAME=postgres
+      - PG_META_DB_USER=guilhermeterence
+      - PG_META_DB_PASSWORD=${password}
+      - PG_META_PORT=8080
+    networks:
+      - supabase-network
 
   supabase-db:
     image: postgres:15-alpine
@@ -53,6 +69,7 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - supabase_db_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - supabase-network
 
