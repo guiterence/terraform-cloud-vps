@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de JWT para Supabase</title>
+    <script src="https://cdn.jsdelivr.net/npm/jose@4.14.4/dist/browser/index.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+        .token {
+            font-family: monospace;
+            font-size: 12px;
+            color: #333;
+            margin-top: 10px;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Gerador de JWT para Supabase Self-Hosted</h1>
+        
+        <div class="info">
+            <strong>Como usar:</strong><br>
+            1. Cole seu <code>service_key</code> (secret) abaixo<br>
+            2. Selecione o role (geralmente <code>service_role</code>)<br>
+            3. Clique em "Gerar JWT Token"<br>
+            4. Copie o token gerado e use no N8N Supabase como "Service Role Secret"
+        </div>
+
+        <div class="form-group">
+            <label for="secret">Service Key (Secret):</label>
+            <input type="text" id="secret" placeholder="Cole seu service_key aqui" value="n78oYSAI5XiVxH5Ua4CYf4W+q1cS/QuSsbH9moX2onY=">
+        </div>
+
+        <div class="form-group">
+            <label for="role">Role:</label>
+            <select id="role">
+                <option value="service_role" selected>service_role (recomendado para N8N)</option>
+                <option value="anon">anon</option>
+                <option value="authenticated">authenticated</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="expires">Expira em (dias):</label>
+            <input type="number" id="expires" value="365" min="1" max="3650">
+        </div>
+
+        <button onclick="generateToken()">Gerar JWT Token</button>
+
+        <div id="result" class="result" style="display: none;">
+            <strong>JWT Token gerado:</strong>
+            <div id="token" class="token"></div>
+            <div style="margin-top: 15px;">
+                <strong>Tamanho:</strong> <span id="size"></span> caracteres<br>
+                <strong>Expira em:</strong> <span id="expDate"></span>
+            </div>
+            <button onclick="copyToken()" style="margin-top: 10px; background: #2196F3;">📋 Copiar Token</button>
+        </div>
+    </div>
+
+    <script>
+        async function generateToken() {
+            const secret = document.getElementById('secret').value.trim();
+            const role = document.getElementById('role').value;
+            const expiresDays = parseInt(document.getElementById('expires').value);
+
+            if (!secret) {
+                alert('Por favor, insira o service_key!');
+                return;
+            }
+
+            try {
+                // Criar payload do JWT
+                const now = Math.floor(Date.now() / 1000);
+                const payload = {
+                    role: role,
+                    exp: now + (expiresDays * 24 * 60 * 60),
+                    iat: now
+                };
+
+                // Converter secret para Uint8Array
+                const secretKey = new TextEncoder().encode(secret);
+
+                // Gerar JWT usando jose library
+                const jwt = await new jose.SignJWT(payload)
+                    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+                    .setIssuedAt(now)
+                    .setExpirationTime(now + (expiresDays * 24 * 60 * 60))
+                    .sign(secretKey);
+
+                // Mostrar resultado
+                document.getElementById('token').textContent = jwt;
+                document.getElementById('size').textContent = jwt.length;
+                
+                const expDate = new Date((now + (expiresDays * 24 * 60 * 60)) * 1000);
+                document.getElementById('expDate').textContent = expDate.toLocaleString('pt-BR');
+                
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                alert('Erro ao gerar token: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        function copyToken() {
+            const token = document.getElementById('token').textContent;
+            navigator.clipboard.writeText(token).then(() => {
+                alert('Token copiado para a área de transferência!');
+            }).catch(err => {
+                alert('Erro ao copiar: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
+

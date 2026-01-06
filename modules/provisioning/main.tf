@@ -232,6 +232,11 @@ resource "null_resource" "provision_postgres" {
 
   depends_on = [null_resource.create_directories]
 
+  triggers = {
+    compose_hash = filesha1("${path.module}/templates/postgres.yml.tpl")
+    pg_hba_hash  = filesha1("${path.module}/templates/pg_hba.conf.tpl")
+  }
+
   connection {
     type        = "ssh"
     host        = local.ssh_host
@@ -250,9 +255,15 @@ resource "null_resource" "provision_postgres" {
     destination = "/opt/docker/postgres/docker-compose.yml"
   }
 
+  provisioner "file" {
+    content     = file("${path.module}/templates/pg_hba.conf.tpl")
+    destination = "/opt/docker/postgres/pg_hba.conf"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "cd /opt/docker/postgres",
+      "docker-compose down",
       "docker-compose up -d"
     ]
   }
@@ -294,10 +305,10 @@ resource "null_resource" "provision_minio" {
       "cd /opt/docker/minio",
       "docker-compose up -d",
       "sleep 10",
-      "docker exec minio mc alias rm local >/dev/null 2>&1 || true",
-      "docker exec minio mc alias set local http://127.0.0.1:9000 '${var.minio_root_user}' '${local.minio_root_password}'",
-      "docker exec minio mc mb --ignore-existing local/${var.minio_bucket_name}",
-      "docker exec minio mc anonymous set private local/${var.minio_bucket_name}"
+      "docker run --rm --network container:minio minio/mc:latest alias rm local >/dev/null 2>&1 || true",
+      "docker run --rm --network container:minio minio/mc:latest alias set local http://127.0.0.1:9000 '${var.minio_root_user}' '${local.minio_root_password}'",
+      "docker run --rm --network container:minio minio/mc:latest mb --ignore-existing local/${var.minio_bucket_name} || echo 'Bucket já existe ou erro ao criar'",
+      "docker run --rm --network container:minio minio/mc:latest anonymous set private local/${var.minio_bucket_name} || echo 'Erro ao configurar anônimo'"
     ]
   }
 }
@@ -363,7 +374,7 @@ resource "null_resource" "provision_supabase" {
   provisioner "file" {
     content = templatefile("${path.module}/templates/supabase.yml.tpl", {
       domain           = var.domain_name
-      password         = var.supabase_db_password != "" ? nonsensitive(var.supabase_db_password) : "postgres"
+      password         = var.postgres_password != "" ? nonsensitive(var.postgres_password) : "postgres"
       service_key      = var.supabase_service_key != "" ? nonsensitive(var.supabase_service_key) : "n78oYSAI5XiVxH5Ua4CYf4W+q1cS/QuSsbH9moX2onY="
       minio_bucket     = var.minio_bucket_name
       minio_access_key = var.minio_service_account_access_key != "" ? nonsensitive(var.minio_service_account_access_key) : ""
@@ -374,7 +385,7 @@ resource "null_resource" "provision_supabase" {
 
   provisioner "file" {
     content = templatefile("${path.module}/templates/supabase-init.sql.tpl", {
-      password = replace(var.supabase_db_password != "" ? nonsensitive(var.supabase_db_password) : "postgres", "'", "''")
+      password = replace(var.postgres_password != "" ? nonsensitive(var.postgres_password) : "postgres", "'", "''")
     })
     destination = "/opt/docker/supabase/init.sql"
   }
@@ -383,11 +394,10 @@ resource "null_resource" "provision_supabase" {
     inline = [
       "cd /opt/docker/supabase",
       "docker-compose down 2>/dev/null || true",
-      "docker volume rm supabase_supabase_db_data 2>/dev/null || true",
       "docker-compose up -d",
       "sleep 5",
-      "docker exec supabase-db chown -R postgres:postgres /var/lib/postgresql/data 2>/dev/null || true",
-      "docker-compose restart supabase-db",
+      "docker cp /opt/docker/supabase/init.sql postgres:/tmp/init.sql",
+      "docker exec -e PGPASSWORD='${var.postgres_password != "" ? replace(nonsensitive(var.postgres_password), "'", "'\"'\"'") : "postgres"}' postgres psql -U guilhermeterence -d postgres -f /tmp/init.sql",
       "docker network inspect supabase_supabase-network >/dev/null 2>&1 && docker network connect supabase_supabase-network traefik 2>/dev/null || true"
     ]
   }

@@ -12,8 +12,15 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+    command: >
+      postgres
+      -c hba_file=/etc/postgresql/pg_hba.conf
+      -c listen_addresses=*
+      -c shared_preload_libraries=pg_stat_statements
+    # Não expor a porta publicamente - apenas na rede Docker
+    # ports:
+    #   - "5432:5432"
     networks:
       - postgres-network
 

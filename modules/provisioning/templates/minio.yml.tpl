@@ -27,6 +27,7 @@ services:
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
     networks:
       - traefik-network
+      - minio-network
 
 volumes:
   minio_data:
@@ -34,4 +35,6 @@ volumes:
 networks:
   traefik-network:
     external: true
+  minio-network:
+    driver: bridge
 
