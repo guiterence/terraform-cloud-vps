@@ -1,0 +1,155 @@
+/* Tema global baseado no design NEXORA */
+
+:root {
+  /* Cores principais */
+  --primary-purple-dark: #3b1c5a;
+  --primary-purple: #5f2c82;
+  --primary-purple-light: #7b3f8c;
+  --primary-purple-lighter: #9f5f9f;
+  --primary-pink: #d16ba5;
+  --primary-gradient: linear-gradient(135deg, #3b1c5a, #7b3f8c, #d16ba5);
+  --primary-gradient-button: linear-gradient(135deg, #6a3093, #a044ff);
+  --primary-gradient-header: linear-gradient(135deg, #5f2c82, #9f5f9f);
+  
+  /* Cores neutras */
+  --white: #ffffff;
+  --gray-light: #f3f3f3;
+  --gray-medium: #f5f6fa;
+  --gray-text: #666;
+  --gray-text-dark: #333;
+  --gray-border: #e0e0e0;
+  
+  /* Cores de status */
+  --success-green: #4caf50;
+  --warning-orange: #ff9800;
+  --error-red: #f44336;
+  
+  /* Sombras */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.3);
+  
+  /* Bordas */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 25px;
+  
+  /* Espaçamentos */
+  --spacing-xs: 5px;
+  --spacing-sm: 10px;
+  --spacing-md: 15px;
+  --spacing-lg: 20px;
+  --spacing-xl: 30px;
+  --spacing-xxl: 40px;
+  
+  /* Tipografia */
+  --font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 22px;
+  --font-size-xxxl: 24px;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: var(--font-family);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background: var(--gray-medium);
+}
+
+/* Utilitários */
+.gradient-bg {
+  background: var(--primary-gradient);
+}
+
+.gradient-button {
+  background: var(--primary-gradient-button);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 12px 24px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.gradient-button:hover {
+  opacity: 0.9;
+}
+
+.gradient-button:active {
+  transform: translateY(1px);
+}
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  background: var(--primary-gradient-header);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  padding: var(--spacing-lg);
+  color: var(--white);
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: var(--spacing-md);
+}
+
+.input-group input,
+.input-group textarea,
+.input-group select {
+  width: 100%;
+  padding: 12px 15px 12px 42px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--gray-light);
+  font-size: var(--font-size-base);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-group input:focus,
+.input-group textarea:focus,
+.input-group select:focus {
+  background: var(--white);
+  box-shadow: 0 0 0 2px var(--primary-purple-light);
+}
+
+.input-group span {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  font-size: var(--font-size-base);
+  color: var(--gray-text);
+  pointer-events: none;
+}
+
+.input-group textarea {
+  padding-left: 15px;
+  border-radius: var(--radius-sm);
+  min-height: 100px;
+  resize: vertical;
+}
+
+.input-group select {
+  padding-left: 42px;
+  cursor: pointer;
+}
+
